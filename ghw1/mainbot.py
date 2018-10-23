@@ -1,6 +1,10 @@
 import socket
 import random
 import datetime
+import urllib.request
+import urllib.parse
+from bs4 import BeautifulSoup
+
 
 IRCSocket = socket.socket(socket.AF_INET , socket.SOCK_STREAM)
 IRCServer = '127.0.0.1'
@@ -16,6 +20,11 @@ ZOutcome = ['Today is your lucky day!' ,
 			'You\'ve just wasted 3 seconds reading this message.' ,
 			'If you spell stressed backwards, you get desserts.' ,
 			'Wait, I\'m searching for some fortune messages on Google.'] #Total : 6
+Youtube = '{}: https://www.youtube.com{}'
+YoutubePre = 'https://www.youtube.com/results?search_query={}'
+YoutubeCls = 'yt-uix-tile-link'
+
+
 Bufsize = 4096
 
 def IRCFormat(msg) :
@@ -68,9 +77,22 @@ def IRCRobot():
 				Outcome = ZOutcome[(ZSign.index(action) * TodayDate.day) % 6]
 				sendmsg(Outcome)
 			elif action == '!guess' :
-				print('G')
+				sendmsg('Game start! Guess a number between 1~10.')
+				
 			elif action == '!song':
-				print('S')
+				if not text :
+					sendmsg('I don\'t understand. You must have done something wrong.')
+				else :
+					songname = '+'.join(text)
+					url = YoutubePre.format(urllib.parse.quote(songname))
+					with urllib.request.urlopen(url) as search :
+						html = search.read()
+						soup = BeautifulSoup(html , 'lxml')
+						target = soup.find('a' , class_ = YoutubeCls)
+						title = target['title']
+						link =  target['href']
+						sendmsg(Youtube.format(title , link))
+						
 			else :
 				sendmsg('I don\'t understand. You must have misspelled something.')
 			
