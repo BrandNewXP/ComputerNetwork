@@ -15,7 +15,7 @@ IRCPort = 8738
 UserName = 'b05902004'
 NickName = 'bot_b05902004'
 Channel = '#CN_DEMO'
-Intro = ' : Hi! I am bot_b0902004!'
+Intro = 'Hi! I am bot_b0902004!'
 ZSign = ['​Capricorn' , 'Aquarius' , 'Pisces' , 'Aries' , 'Taurus' , 'Gemini' , 'Cancer' , 'Leo' , 'Virgo' , 'Libra' , 'Scorpio' , 'Sagittarius']
 ZOutcome = ['Today is your lucky day!' ,
 			'Be careful, cause you\'re going to have a bad day.' ,
@@ -141,14 +141,16 @@ def IRCRobot():
 						elif sock == IRCSocket :
 							data = IRCSocket.recv(Bufsize).decode().strip('\r\n')
 							print(data)
-							chatmsg = data.split(':')
+							chatmsg = data.split()
 							if chatmsg[0] == 'PING' :
 								sendmsg('PONG ' + chatmsg[1])
 								print('PINGed at ' +  time.asctime(time.localtime(time.time())))
 								continue
-							chattext = chatmsg[5]
-							print('{} :{}'.format(ClientName , chattext))
-							if chattext == '!bye' :
+							chataction = chatmsg[3][1:]
+							chattext = chatmsg[4:]
+							print(chataction)
+							print(chattext)
+							if chataction == '!bye' :
 								print('====={} doesn\'t want to talk to you anymore.====='.format(ClientName))
 								chatting = False
 			else :
