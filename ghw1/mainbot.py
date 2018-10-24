@@ -140,16 +140,18 @@ def IRCRobot():
 							sendmsg('PRIVMSG {} :{}'.format(ClientName , myinput))
 						elif sock == IRCSocket :
 							data = IRCSocket.recv(Bufsize).decode().strip('\r\n')
-							print(data)
 							chatmsg = data.split()
 							if chatmsg[0] == 'PING' :
 								sendmsg('PONG ' + chatmsg[1])
 								print('PINGed at ' +  time.asctime(time.localtime(time.time())))
 								continue
+							SendName = chatmsg[0].split('!' , 1)[0][1:] 
+							if SendName != ClientName :
+								continue
 							chataction = chatmsg[3][1:]
 							chattext = chatmsg[4:]
-							print(chataction)
-							print(chattext)
+							texttogether = ' '.join(chattext)
+							print('{} :{} {}'.format(ClientName , chataction , texttogether))
 							if chataction == '!bye' :
 								print('====={} doesn\'t want to talk to you anymore.====='.format(ClientName))
 								chatting = False
