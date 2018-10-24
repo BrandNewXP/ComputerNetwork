@@ -67,12 +67,12 @@ def IRCRobot():
 			continue
 		msg = IRCMsg.split()
 		# PING PONG
-		if msg[0] == 'PING':
+		if msg[0] == 'PING' :
 			sendmsg('PONG ' + msg[1])
 			print('PINGed at ' +  time.asctime(time.localtime(time.time())))
 			continue
 
-		ClientName , IRCCommand = msg[0].split('!', 1)[0][1:], msg[1]
+		ClientName , IRCCommand = msg[0].split('!' , 1)[0][1:] , msg[1]
 		action = None
 
 		if IRCCommand == 'PRIVMSG':
@@ -99,7 +99,7 @@ def IRCRobot():
 					Guessing = False
 			elif action in ZSign :
 				TodayDate = datetime.datetime.now()
-				Outcome = ZOutcome[(ZSign.index(action) * TodayDate.day) % 6]
+				Outcome = ZOutcome[(ZSign.index(action) + TodayDate.day) % 6]
 				sendmsg('PRIVMSG {} :{}'.format(ClientName , Outcome))
 			elif action == '!guess' :
 				if Guessing == True :
@@ -110,7 +110,7 @@ def IRCRobot():
 				print('Guessing game cheater :' , answer)
 				chances = 3
 				Guessing = True
-			elif action == '!song':
+			elif action == '!song' :
 				if not text :
 					sendmsg('PRIVMSG {} :{}'.format(ClientName , 'I don\'t understand. You must have done something wrong.'))
 				else :
@@ -120,9 +120,16 @@ def IRCRobot():
 						html = search.read()
 						soup = BeautifulSoup(html , 'lxml')
 						target = soup.find('a' , class_ = YoutubeCls)
+						if not target :
+							sendmsg('PRIVMSG {} :{}'.format(ClientName , 'I don\'t understand. Something\'s not quite right.'))
+							continue
 						title = target['title']
 						link =  target['href']
 						sendmsg('PRIVMSG {} :{}'.format(ClientName , Youtube.format(title , link)))
+			elif action == '!chat' :
+				print('chat')
+			elif action == '!quit' :
+				IRCSocket.close() 
 			else :
 				sendmsg('PRIVMSG {} :{}'.format(ClientName , 'I don\'t understand. You must have misspelled something.'))
 			
