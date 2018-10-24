@@ -2,6 +2,8 @@ import socket
 import random
 import time
 import datetime
+import sys
+import select
 import urllib.request
 import urllib.parse
 from bs4 import BeautifulSoup
@@ -9,7 +11,7 @@ from bs4 import BeautifulSoup
 
 IRCSocket = socket.socket(socket.AF_INET , socket.SOCK_STREAM)
 IRCServer = '127.0.0.1'
-IRCPort = 6667
+IRCPort = 8738
 UserName = 'b05902004'
 NickName = 'bot_b05902004'
 Channel = '#CN_DEMO'
@@ -127,9 +129,28 @@ def IRCRobot():
 						link =  target['href']
 						sendmsg('PRIVMSG {} :{}'.format(ClientName , Youtube.format(title , link)))
 			elif action == '!chat' :
-				print('chat')
-			elif action == '!quit' :
-				IRCSocket.close() 
+				print('====={} wants to chat with you! ====='.format(ClientName))
+				inputs = [IRCSocket , sys.stdin]
+				chatting = True
+				while chatting == True :
+					readable , writeable , exceptional = select.select(inputs , [] , [])
+					for sock in readable :
+						if sock == sys.stdin :
+							myinput = input()
+							sendmsg('PRIVMSG {} :{}'.format(ClientName , myinput))
+						elif sock == IRCSocket :
+							data = IRCSocket.recv(Bufsize).decode().strip('\r\n')
+							print(data)
+							chatmsg = data.split(':')
+							if chatmsg[0] == 'PING' :
+								sendmsg('PONG ' + chatmsg[1])
+								print('PINGed at ' +  time.asctime(time.localtime(time.time())))
+								continue
+							chattext = chatmsg[5]
+							print('{} :{}'.format(ClientName , chattext))
+							if chattext == '!bye' :
+								print('====={} doesn\'t want to talk to you anymore.====='.format(ClientName))
+								chatting = False
 			else :
 				sendmsg('PRIVMSG {} :{}'.format(ClientName , 'I don\'t understand. You must have misspelled something.'))
 			
